@@ -1,0 +1,35 @@
+var express = require("express");
+var router = express.Router();
+
+var app = express();
+var config = require(".././config.json")[app.get("env")];
+
+var unirest = require("unirest");
+var base_url = "https://connect.squareup.com/v1";
+
+router.get("/", function(req, res, next) {
+  query = "types=item";
+  let locationId = B5GH5V72WQ9AY;
+
+  unirest
+    .get(base_url + "/" + locationId + "/inventory")
+    .headers({
+      Authorization: "Bearer " + config.squareAccessToken,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    })
+    .query({
+      limit: 250
+    })
+    .end(function(response) {
+      if (response.body.errors) {
+        console.log("error!!" + JSON.stringify(response.body.errors));
+        return res.json({ status: 400, errors: response.body.errors });
+      } else {
+        console.log("ok!!");
+        return res.json({ data: response.body });
+      }
+    });
+});
+
+module.exports = router;
